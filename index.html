@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>書籍検索</title>
+    <style>
+        .book {
+            margin: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        .book img {
+            margin-right: 20px;
+        }
+        table {
+            width: 100%;
+        }
+        th, td {
+            padding: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <input type="text" id="keyword" placeholder="キーワードを入力">
+    <button onclick="search()">検索</button>
+    <div id="results"></div>
+
+    <script>
+        function search() {
+            var keyword = document.getElementById('keyword').value;
+            
+            fetch(`https://www.googleapis.com/books/v1/volumes?q=${keyword}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('results').innerHTML = '';
+                for(let i = 0; i < data.items.length; i++) {
+                    const bookDiv = document.createElement('div');
+                    bookDiv.className = 'book';
+                    const img = document.createElement('img');
+                    img.src = data.items[i].volumeInfo.imageLinks ? data.items[i].volumeInfo.imageLinks.thumbnail : '';
+                    const info = document.createElement('table');
+                    const identifiers = data.items[i].volumeInfo.industryIdentifiers ? data.items[i].volumeInfo.industryIdentifiers.map(id => `${id.type}: ${id.identifier}`).join('<br>') : '';
+                    info.innerHTML = `<tr><td>タイトル:</td><td>${data.items[i].volumeInfo.title}</td></tr>
+                                      <tr><td>著者:</td><td>${data.items[i].volumeInfo.authors}</td></tr>
+                                      <tr><td>出版社:</td><td>${data.items[i].volumeInfo.publisher}</td></tr>
+                                      <tr><td>発売日:</td><td>${data.items[i].volumeInfo.publishedDate}</td></tr>
+                                      <tr><td>概要:</td><td>${data.items[i].volumeInfo.description}</td></tr>
+                                      <tr><td>識別子:</td><td>${identifiers}</td></tr>
+                                      <tr><td>ページ数:</td><td>${data.items[i].volumeInfo.pageCount}</td></tr>
+                                      <tr><td>形式:</td><td>${data.items[i].volumeInfo.printType}</td></tr>
+                                      <tr><td>カテゴリー:</td><td>${data.items[i].volumeInfo.categories}</td></tr>
+                                      <tr><td>評価:</td><td>${data.items[i].volumeInfo.averageRating}</td></tr>
+                                      <tr><td>評価数:</td><td>${data.items[i].volumeInfo.ratingsCount}</td></tr>
+                                      <tr><td>対象年齢:</td><td>${data.items[i].volumeInfo.maturityRating}</td></tr>
+                                      <tr><td>言語:</td><td>${data.items[i].volumeInfo.language}</td></tr>
+                                      <tr><td>プレビューリンク:</td><td><a href="${data.items[i].volumeInfo.previewLink}">プレビューリンク</a></td></tr>
+                                      <tr><td>詳細リンク:</td><td><a href="${data.items[i].volumeInfo.infoLink}">詳細リンク</a></td></tr>
+                                      <tr><td>公式リンク:</td><td><a href="${data.items[i].volumeInfo.canonicalVolumeLink}">公式リンク</a></td></tr>`;
+                    bookDiv.appendChild(img);
+                    bookDiv.appendChild(info);
+                    document.getElementById('results').appendChild(bookDiv);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
+
+
+
